@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <set>
+#include <map>
 
 using std::cout;
 using std::endl;
@@ -43,23 +44,80 @@ void o(std::vector<int> *vec)
     std::cout << std::endl;
 }
 
-std::vector<std::vector<int>> v3;
-std::vector<std::vector<int>> v4;
-std::vector<std::vector<int>> v5;
+std::vector<std::vector<int> > filter(std::vector<std::vector<int> > vect, std::map<int, int> mat)
+{
 
-bool search(std::vector<int> result, int step)
+    std::vector<std::vector<int> > a;
+
+    for (auto v : vect) {
+        bool found = true;
+        for(auto m : mat) {
+            if (v[m.first] != m.second) found = false;
+        }
+        if (found) a.push_back(v);
+
+    }
+
+    return a;
+
+    //  foreach (auto v : vect) {
+    //    $found = true;
+    //    foreach ($mat as $sk => $sv) {
+    //      if ($v[$sk] !== $sv) $found = false;
+    //    }
+    //    if ($found) $result[] = $v;
+    //  }
+
+    //  return $result;
+}
+
+std::vector<std::vector<int> > v3;
+std::vector<std::vector<int> > v4;
+std::vector<std::vector<int> > v5;
+
+bool search(std::vector<std::vector<int> > result, int step)
 {
     if (step == 0)
     {
         for (auto v : v5)
         {
-            if (search(v, 1)) {
+            o(&v);
+            result.push_back(v);
+            if (search(result, 1))
+            {
                 return true;
             }
         }
         return false;
-    } else if (step == 1) {
-
+    }
+    else if (step == 1)
+    {
+        std::vector<std::vector<int> > filtered_5 = v5;
+        std::map<int, int> f;
+        f[2] = result[0][2];
+        for (auto v : filter(filtered_5, f))
+        {
+            o(&v);
+            result.push_back(v);
+            if (search(result, 2)) {
+                return true;
+            }
+        }
+        return false;
+    } else if (step == 2)
+    {
+        std::vector<std::vector<int> > filtered_5 = v5;
+        std::map<int, int> f;
+        f[2] = result[0][2];
+        for (auto v : filter(filtered_5, f))
+        {
+            o(&v);
+            result.push_back(v);
+            if (search(result, 2)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     return false;
@@ -75,13 +133,29 @@ int main()
     cout << "computing vectors... ";
     while (v.size() < 6)
     {
+        int sum_of_elems = 0;
         incc(&v);
         if (v.size() == 3)
-            v3.push_back(v);
+        {
+            for (auto &n : v)
+                sum_of_elems += n;
+            if (sum_of_elems == 35)
+                v3.push_back(v);
+        }
         if (v.size() == 4)
-            v4.push_back(v);
+        {
+            for (auto &n : v)
+                sum_of_elems += n;
+            if (sum_of_elems == 34)
+                v4.push_back(v);
+        }
         if (v.size() == 5)
-            v5.push_back(v);
+        {
+            for (auto &n : v)
+                sum_of_elems += n;
+            if (sum_of_elems == 33)
+                v5.push_back(v);
+        }
     }
     cout << "done" << endl;
 
@@ -92,7 +166,7 @@ int main()
     cout << "Size: " << v5.size() << endl;
     o(&v5.back());
 
-    std::vector<int> result;
+    std::vector<std::vector<int>> result;
     if (search(result, 0))
     {
         cout << "found vector" << endl;
