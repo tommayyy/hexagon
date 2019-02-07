@@ -59,21 +59,53 @@ std::vector<std::vector<int> > filter(std::vector<std::vector<int> > vect, std::
     }
 
     return a;
+}
 
-    //  foreach (auto v : vect) {
-    //    $found = true;
-    //    foreach ($mat as $sk => $sv) {
-    //      if ($v[$sk] !== $sv) $found = false;
-    //    }
-    //    if ($found) $result[] = $v;
-    //  }
-
-    //  return $result;
+bool in_list(std::vector<int> search, std::vector<std::vector<int> > list) {
+    for (auto v: list) {
+        if (v.size() != search.size()) continue;
+        bool found = true;
+        for (int i = 0 ; i < v.size(); i++) {
+            if (v[i] != search[i]) {
+                found = false;
+                break;
+            }
+        }
+        if (found) return true;
+    }
+    return false;
 }
 
 std::vector<std::vector<int> > v3;
 std::vector<std::vector<int> > v4;
 std::vector<std::vector<int> > v5;
+
+std::vector<std::vector<int> > filter_2(std::vector<std::vector<int> > a, std::vector<std::vector<int> > b, std::map<int, int> m) {
+    std::vector<std::vector<int> > result;
+    std::set<int> s;
+    for (auto _b : b) {
+        for (auto i : _b) {
+            bool ignore = false;
+            for (auto it = m.begin(); it != m.end(); ++it ){
+                if (it->second == i) ignore = true;
+            }
+            if (!ignore && (s.find(i) == s.end())) s.insert(i);
+        }
+    }
+
+
+    for (auto _v: a) {
+        bool found = false;
+        for (auto i : _v)    {
+            if (s.find(i) != s.end()) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) result.push_back(_v);
+    }
+    return result;
+}
 
 bool search(std::vector<std::vector<int> > result, int step)
 {
@@ -95,9 +127,11 @@ bool search(std::vector<std::vector<int> > result, int step)
         std::vector<std::vector<int> > filtered_5 = v5;
         std::map<int, int> f;
         f[2] = result[0][2];
+        filtered_5 = filter_2(filtered_5, result, f);
         for (auto v : filter(filtered_5, f))
         {
-            o(&v);
+            if (in_list(v, result)) continue;
+         //   o(&v);
             result.push_back(v);
             if (search(result, 2)) {
                 return true;
@@ -109,15 +143,36 @@ bool search(std::vector<std::vector<int> > result, int step)
         std::vector<std::vector<int> > filtered_5 = v5;
         std::map<int, int> f;
         f[2] = result[0][2];
+        filtered_5 = filter_2(filtered_5, result, f);
         for (auto v : filter(filtered_5, f))
         {
-            o(&v);
+            if (in_list(v, result)) continue;
+           // o(&v);
             result.push_back(v);
-            if (search(result, 2)) {
+            if (search(result, 3)) {
                 return true;
             }
         }
         return false;
+    } else if (step == 3)
+    {
+        std::vector<std::vector<int> > filtered_4 = v4;
+        std::map<int, int> f;
+        f[1] = result[0][1];
+        f[2] = result[2][1];
+        filtered_4 = filter_2(filtered_4, result, f);
+        for (auto v : filter(filtered_4, f))
+        {
+            if (in_list(v, result)) continue;
+          //  o(&v);
+            result.push_back(v);
+            if (search(result, 4)) {
+                return true;
+            }
+        }
+        return false;
+    } else {
+        return true;
     }
 
     return false;
