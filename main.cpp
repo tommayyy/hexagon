@@ -7,12 +7,6 @@
 using std::cout;
 using std::endl;
 
-bool is_unique(std::vector<int> *X)
-{
-    std::set<int> Y(X->begin(), X->end());
-    return X->size() == Y.size();
-}
-
 void inc(std::vector<int> *vec, int nn = 0, int b = 19)
 {
     if (vec->size() == nn)
@@ -28,6 +22,12 @@ void inc(std::vector<int> *vec, int nn = 0, int b = 19)
     }
 }
 
+bool is_unique(std::vector<int> *X)
+{
+    std::set<int> Y(X->begin(), X->end());
+    return X->size() == Y.size();
+}
+
 void incc(std::vector<int> *vec, int nn = 0, int b = 19)
 {
     do
@@ -36,37 +36,9 @@ void incc(std::vector<int> *vec, int nn = 0, int b = 19)
     } while (!is_unique(vec));
 }
 
-void o(std::vector<int> *vec)
-{
-    for (std::vector<int>::iterator it = vec->begin(); it != vec->end(); ++it)
-    {
-        std::cout << *it << " ";
-    }
-    std::cout << std::endl;
-}
-
-std::vector<std::vector<int>> filter(std::vector<std::vector<int>> vect, std::map<int, int> mat)
-{
-
-    std::vector<std::vector<int>> a;
-
-    for (auto v : vect)
-    {
-        bool found = true;
-        for (auto m : mat)
-        {
-            if (v[m.first] != m.second)
-                found = false;
-        }
-        if (found)
-            a.push_back(v);
-    }
-
-    return a;
-}
-
 bool in_list(std::vector<int> search, std::vector<std::vector<int>> list)
 {
+    return false;
     for (auto v : list)
     {
         if (v.size() != search.size())
@@ -90,38 +62,84 @@ std::vector<std::vector<int>> v3;
 std::vector<std::vector<int>> v4;
 std::vector<std::vector<int>> v5;
 
-std::vector<std::vector<int>> filter_2(std::vector<std::vector<int>> a, std::vector<std::vector<int>> b, std::map<int, int> m)
+std::vector<std::vector<int>> filter(std::vector<std::vector<int>> *unfiltered_list, std::vector<std::vector<int>> b, std::map<int, int> search_map)
 {
-    std::vector<std::vector<int>> result;
-    std::set<int> s;
+
+    // calculate set with already used numbers (exclude search_map)
+    std::set<int> ignore_set;
     for (auto _b : b)
     {
         for (auto i : _b)
         {
             bool ignore = false;
-            for (auto it = m.begin(); it != m.end(); ++it)
+            for (auto it = search_map.begin(); it != search_map.end(); ++it)
             {
                 if (it->second == i)
+                {
                     ignore = true;
+                    break;
+                }
             }
-            if (!ignore && (s.find(i) == s.end()))
-                s.insert(i);
+            if (!ignore && (ignore_set.find(i) == ignore_set.end()))
+                ignore_set.insert(i);
         }
     }
 
-    for (auto _v : a)
+    std::vector<std::vector<int>> result;
+
+    // filter by ignore_set
+    for (auto it = unfiltered_list->begin(); it != unfiltered_list->end(); ++it)
     {
         bool found = false;
-        for (auto i : _v)
+        for (auto i : (*it))
         {
-            if (s.find(i) != s.end())
+            if (ignore_set.find(i) != ignore_set.end())
             {
                 found = true;
                 break;
             }
         }
+        if (found)
+        {
+            continue;
+        }
+
+        found = true;
+        for (auto m : search_map)
+        {
+            if ((*it)[m.first] != m.second)
+            {
+                found = false;
+                break;
+            }
+        }
         if (!found)
-            result.push_back(_v);
+        {
+            continue;
+        }
+        
+        for (auto v : b)
+        {
+            found = false;
+            if (v.size() != (*it).size()) {
+                continue;
+            }
+            found = true;
+            for (int i = 0; i < v.size(); i++)
+            {
+                if (v[i] != (*it)[i])
+                {
+                    found = false;
+                    break;
+                }
+            }
+            if (found) break;
+        }
+        if (found) {
+            continue;
+        }
+
+        result.push_back(*it);
     }
     return result;
 }
@@ -129,18 +147,30 @@ std::vector<std::vector<int>> filter_2(std::vector<std::vector<int>> a, std::vec
 bool check(std::vector<std::vector<int>> result)
 {
     if (result[5][1] + result[7][1] + result[8][1] + result[6][0] != 34)
+    {
         return false;
+    }
     if (result[5][0] + result[7][2] + result[8][2] + result[6][1] + result[2][0] != 33)
+    {
         return false;
+    }
     if (result[7][3] + result[8][3] + result[6][2] + result[2][1] != 34)
+    {
         return false;
+    }
 
     if (result[0][1] + result[8][1] + result[6][1] + result[2][1] != 34)
+    {
         return false;
+    }
     if (result[0][0] + result[7][1] + result[8][2] + result[6][2] + result[2][2] != 33)
+    {
         return false;
+    }
     if (result[5][1] + result[7][2] + result[8][3] + result[6][3] != 34)
+    {
         return false;
+    }
 
     return true;
 }
@@ -152,6 +182,7 @@ void print_result(std::vector<std::vector<int>> result)
     printf("%2d  %2d  %2d  %2d  %2d\n", result[5][0] + 1, result[7][2] + 1, result[8][2] + 1, result[6][1] + 1, result[1][2] + 1);
     printf("  %2d  %2d  %2d  %2d\n", result[4][1] + 1, result[8][3] + 1, result[6][2] + 1, result[2][1] + 1);
     printf("    %2d  %2d  %2d\n\n", result[3][2] + 1, result[3][1] + 1, result[3][0] + 1);
+    fflush(stdout);
 }
 
 bool search(std::vector<std::vector<int>> result, int step)
@@ -160,7 +191,6 @@ bool search(std::vector<std::vector<int>> result, int step)
     {
         for (auto v : v3)
         {
-            // o(&v);
             result.push_back(v);
             if (search(result, 1))
             {
@@ -172,19 +202,16 @@ bool search(std::vector<std::vector<int>> result, int step)
     }
     else if (step <= 5)
     {
-        std::vector<std::vector<int>> filtered = v3;
         std::map<int, int> f;
         f[0] = result[step - 1][2];
         if (step == 5)
         {
             f[2] = result[0][0];
         }
-        filtered = filter_2(filtered, result, f);
-        for (auto v : filter(filtered, f))
+        for (auto v : filter(&v3, result, f))
         {
             if (in_list(v, result))
                 continue;
-            // o(&v);
             result.push_back(v);
             if (search(result, step + 1))
             {
@@ -196,16 +223,14 @@ bool search(std::vector<std::vector<int>> result, int step)
     }
     else if (step == 6)
     {
-        std::vector<std::vector<int>> filtered = v4;
         std::map<int, int> f;
         f[0] = result[1][1];
         f[3] = result[3][1];
-        filtered = filter_2(filtered, result, f);
-        for (auto v : filter(filtered, f))
+
+        for (auto v : filter(&v4, result, f))
         {
             if (in_list(v, result))
                 continue;
-            // o(&v);
             result.push_back(v);
             if (search(result, 7))
             {
@@ -217,12 +242,10 @@ bool search(std::vector<std::vector<int>> result, int step)
     }
     else if (step == 7)
     {
-        std::vector<std::vector<int>> filtered = v4;
         std::map<int, int> f;
         f[0] = result[0][1];
         f[3] = result[4][1];
-        filtered = filter_2(filtered, result, f);
-        for (auto v : filter(filtered, f))
+        for (auto v : filter(&v4, result, f))
         {
             if (in_list(v, result))
             {
@@ -240,31 +263,23 @@ bool search(std::vector<std::vector<int>> result, int step)
     }
     else if (step == 8)
     {
-        std::vector<std::vector<int>> filtered = v5;
         std::map<int, int> f;
         f[0] = result[0][2];
         f[4] = result[3][2];
-        filtered = filter_2(filtered, result, f);
-        for (auto v : filter(filtered, f))
+        for (auto v : filter(&v5, result, f))
         {
             if (in_list(v, result))
             {
                 continue;
             }
-            // o(&v);
+
             result.push_back(v);
             if (check(result))
             {
                 print_result(result);
-                //return true;
             }
             result.pop_back();
         }
-        return false;
-    }
-    else
-    {
-        return false;
     }
 
     return false;
