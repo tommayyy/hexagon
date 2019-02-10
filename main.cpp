@@ -302,7 +302,8 @@ int sum(std::vector<int> *v)
 int main()
 {
     std::vector<int> v(3, 0);
-    std::map<int, std::vector<std::vector<int>>> v3_map;
+    std::map<int, std::vector<std::vector<int>> *> v3_map;
+    std::vector<std::vector<int>> * v_3;
 
     while (v.size() < 6)
     {
@@ -311,21 +312,19 @@ int main()
         if (v.size() == 3 && sum(&v) == 35)
         {
             v3.push_back(v);
-
             auto key = v[0];
-            std::vector<std::vector<int>> *v_3;
             if (v3_map.find(key) == v3_map.end())
             {
                 // insert new
-                v_3 = new std::vector<std::vector<int>>;
+                v_3 = new std::vector<std::vector<int>>();
+                v3_map[key] = v_3;
             }
             else
             {
-                v_3 = &(v3_map[key]);
+                v_3 = v3_map[key];
                 // found
             }
             v_3->push_back(v);
-            auto set =
         }
         else if (v.size() == 4 && sum(&v) == 34)
         {
@@ -336,8 +335,19 @@ int main()
             v5.push_back(v);
         }
     }
-    std::vector<std::vector<int>> result;
-    std::thread t1(search, result, 0, &v3);
-    t1.join();
+
+    std::vector<std::thread * > threads;
+    for (int i = 0; i < v3_map.size(); i++)
+    {
+        std::vector<std::vector<int>> result;
+        std::thread * t1 = new std::thread(search, result, 0, v3_map[i]);
+        threads.push_back(t1);
+    }
+
+    for (int i = 0; i < v3_map.size(); i++)
+    {
+        threads[i]->join();
+    }
+
     return 0;
 }
