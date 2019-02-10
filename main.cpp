@@ -3,6 +3,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <thread>
 
 using std::cout;
 using std::endl;
@@ -117,11 +118,12 @@ std::vector<std::vector<int>> filter(std::vector<std::vector<int>> *unfiltered_l
         {
             continue;
         }
-        
+
         for (auto v : b)
         {
             found = false;
-            if (v.size() != (*it).size()) {
+            if (v.size() != (*it).size())
+            {
                 continue;
             }
             found = true;
@@ -133,9 +135,11 @@ std::vector<std::vector<int>> filter(std::vector<std::vector<int>> *unfiltered_l
                     break;
                 }
             }
-            if (found) break;
+            if (found)
+                break;
         }
-        if (found) {
+        if (found)
+        {
             continue;
         }
 
@@ -185,14 +189,14 @@ void print_result(std::vector<std::vector<int>> result)
     fflush(stdout);
 }
 
-bool search(std::vector<std::vector<int>> result, int step)
+bool search(std::vector<std::vector<int>> result, int step, std::vector<std::vector<int>> *search_space)
 {
     if (step == 0)
     {
-        for (auto v : v3)
+        for (auto v : (*search_space))
         {
             result.push_back(v);
-            if (search(result, 1))
+            if (search(result, 1, search_space))
             {
                 return true;
             }
@@ -213,7 +217,7 @@ bool search(std::vector<std::vector<int>> result, int step)
             if (in_list(v, result))
                 continue;
             result.push_back(v);
-            if (search(result, step + 1))
+            if (search(result, step + 1, search_space))
             {
                 return true;
             }
@@ -232,7 +236,7 @@ bool search(std::vector<std::vector<int>> result, int step)
             if (in_list(v, result))
                 continue;
             result.push_back(v);
-            if (search(result, 7))
+            if (search(result, 7, search_space))
             {
                 return true;
             }
@@ -253,7 +257,7 @@ bool search(std::vector<std::vector<int>> result, int step)
             }
 
             result.push_back(v);
-            if (search(result, 8))
+            if (search(result, 8, search_space))
             {
                 return true;
             }
@@ -298,6 +302,7 @@ int sum(std::vector<int> *v)
 int main()
 {
     std::vector<int> v(3, 0);
+    std::map<int, std::vector<std::vector<int>>> v3_map;
 
     while (v.size() < 6)
     {
@@ -306,6 +311,21 @@ int main()
         if (v.size() == 3 && sum(&v) == 35)
         {
             v3.push_back(v);
+
+            auto key = v[0];
+            std::vector<std::vector<int>> *v_3;
+            if (v3_map.find(key) == v3_map.end())
+            {
+                // insert new
+                v_3 = new std::vector<std::vector<int>>;
+            }
+            else
+            {
+                v_3 = &(v3_map[key]);
+                // found
+            }
+            v_3->push_back(v);
+            auto set =
         }
         else if (v.size() == 4 && sum(&v) == 34)
         {
@@ -317,6 +337,7 @@ int main()
         }
     }
     std::vector<std::vector<int>> result;
-    search(result, 0);
+    std::thread t1(search, result, 0, &v3);
+    t1.join();
     return 0;
 }
