@@ -303,8 +303,13 @@ int main()
 {
     std::vector<int> v(3, 0);
     std::map<int, std::vector<std::vector<int>> *> v3_map;
-    std::vector<std::vector<int>> * v_3;
-
+    std::vector<std::vector<int>> *v_3;
+    int i = 0;
+    int threads_supported = std::thread::hardware_concurrency();
+    if (threads_supported == 0)
+    {
+        threads_supported = 4;
+    }
     while (v.size() < 6)
     {
         incc(&v);
@@ -312,7 +317,9 @@ int main()
         if (v.size() == 3 && sum(&v) == 35)
         {
             v3.push_back(v);
-            auto key = v[0];
+            i++;
+
+            auto key = i % threads_supported;
             if (v3_map.find(key) == v3_map.end())
             {
                 // insert new
@@ -336,11 +343,11 @@ int main()
         }
     }
 
-    std::vector<std::thread * > threads;
+    std::vector<std::thread *> threads;
     for (int i = 0; i < v3_map.size(); i++)
     {
         std::vector<std::vector<int>> result;
-        std::thread * t1 = new std::thread(search, result, 0, v3_map[i]);
+        std::thread *t1 = new std::thread(search, result, 0, v3_map[i]);
         threads.push_back(t1);
     }
 
