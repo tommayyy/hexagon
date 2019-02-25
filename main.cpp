@@ -8,6 +8,55 @@
 using std::cout;
 using std::endl;
 
+class vb19
+{
+  public:
+    vb19() : val(3, 0) {}
+    std::vector<int> val;
+    int base = 19;
+
+    void inc(unsigned int nn = 0)
+    {
+        if (this->val.size() == nn)
+        {
+            this->val.push_back(1);
+            return;
+        }
+        this->val[nn]++;
+        if (this->val[nn] == this->base)
+        {
+            this->val[nn] = 0;
+            inc(nn + 1);
+        }
+    }
+
+    bool is_unique()
+    {
+        std::vector<int> *X = &this->val;
+        std::set<int> Y(X->begin(), X->end());
+        return X->size() == Y.size();
+    }
+
+    void incc(unsigned int nn = 0)
+    {
+        do
+        {
+            this->inc(nn);
+        } while (!this->is_unique());
+    }
+
+    int sum()
+    {
+        int result = 0;
+        for (auto it = this->val.begin(); it != this->val.end(); ++it)
+        {
+            result += *it;
+        }
+        return result;
+    }
+};
+
+
 void inc(std::vector<int> *vec, int nn = 0, int b = 19)
 {
     if (vec->size() == nn)
