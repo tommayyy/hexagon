@@ -55,37 +55,101 @@ class vb19
         }
         return result;
     }
+
     int size()
     {
         return this->val.size();
+    }
+
+    int get_digit(int index)
+    {
+        return this->val[index] + 1;
+    }
+};
+
+class hexagon
+{
+  public:
+    std::map<int, vb19 *> rows;
+
+    void set_row(int index, vb19 *value)
+    {
+        std::map<int, vb19 *>::iterator it = this->rows.find(index);
+
+        if (it != this->rows.end())
+        {
+            it->second = value;
+        }
+        else
+        {
+            this->rows.insert(std::make_pair(index, value));
+        }
+    }
+
+    vb19 *get_row(int index)
+    {
+        std::map<int, vb19 *>::iterator it = this->rows.find(index);
+        if (it != this->rows.end())
+        {
+            return it->second;
+        }
+        return nullptr;
+    }
+
+    void erase_row(int index)
+    {
+        std::map<int, vb19 *>::iterator it = this->rows.find(index);
+        if (it != this->rows.end())
+        {
+            this->rows.erase(it);
+        }
+    }
+
+    void print()
+    {
+        printf("    %2d  %2d  %2d\n", this->get_row(0)->get_digit(0), this->get_row(0)->get_digit(1), this->get_row(0)->get_digit(2));
+        printf("  %2d  %2d  %2d  %2d\n", this->get_row(5)->get_digit(1), this->get_row(7)->get_digit(1), this->get_row(8)->get_digit(1), this->get_row(6)->get_digit(0));
+        printf("%2d  %2d  %2d  %2d  %2d\n", this->get_row(5)->get_digit(0), this->get_row(7)->get_digit(2), this->get_row(8)->get_digit(2), this->get_row(6)->get_digit(1), this->get_row(1)->get_digit(2));
+        printf("  %2d  %2d  %2d  %2d\n", this->get_row(4)->get_digit(1), this->get_row(8)->get_digit(3), this->get_row(6)->get_digit(2), this->get_row(2)->get_digit(1));
+        printf("    %2d  %2d  %2d\n\n", this->get_row(3)->get_digit(2), this->get_row(3)->get_digit(1), this->get_row(3)->get_digit(0));
+        fflush(stdout);
+    }
+
+    bool check()
+    {
+        if (this->get_row(5)->get_digit(1) + this->get_row(7)->get_digit(1) + this->get_row(8)->get_digit(1) + this->get_row(6)->get_digit(0) != 38)
+        {
+            return false;
+        }
+        if (this->get_row(5)->get_digit(0) + this->get_row(7)->get_digit(2) + this->get_row(8)->get_digit(2) + this->get_row(6)->get_digit(1) + this->get_row(2)->get_digit(0) != 38)
+        {
+            return false;
+        }
+        if (this->get_row(7)->get_digit(3) + this->get_row(8)->get_digit(3) + this->get_row(6)->get_digit(2) + this->get_row(2)->get_digit(1) != 38)
+        {
+            return false;
+        }
+
+        if (this->get_row(0)->get_digit(1) + this->get_row(8)->get_digit(1) + this->get_row(6)->get_digit(1) + this->get_row(2)->get_digit(1) != 38)
+        {
+            return false;
+        }
+        if (this->get_row(0)->get_digit(0) + this->get_row(7)->get_digit(1) + this->get_row(8)->get_digit(2) + this->get_row(6)->get_digit(2) + this->get_row(2)->get_digit(2) != 38)
+        {
+            return false;
+        }
+        if (this->get_row(5)->get_digit(1) + this->get_row(7)->get_digit(2) + this->get_row(8)->get_digit(3) + this->get_row(6)->get_digit(3) != 38)
+        {
+            return false;
+        }
+
+        return true;
     }
 };
 
 std::vector<vb19> v3;
 std::vector<vb19> v4;
 std::vector<vb19> v5;
-
-bool in_list(vb19 *search, std::vector<vb19 *> list)
-{
-    return false;
-    for (auto v : list)
-    {
-        if (v->size() != search->size())
-            continue;
-        bool found = true;
-        for (int i = 0; i < v->size(); i++)
-        {
-            if (v->val[i] != search->val[i])
-            {
-                found = false;
-                break;
-            }
-        }
-        if (found)
-            return true;
-    }
-    return false;
-}
 
 std::vector<vb19 *> filter(std::vector<vb19> *unfiltered_list, std::vector<vb19 *> b, std::map<int, int> search_map)
 {
@@ -172,59 +236,20 @@ std::vector<vb19 *> filter(std::vector<vb19> *unfiltered_list, std::vector<vb19 
     return result;
 }
 
-bool check(std::vector<vb19 *> result)
-{
-    if (result[5]->val[1] + result[7]->val[1] + result[8]->val[1] + result[6]->val[0] != 34)
-    {
-        return false;
-    }
-    if (result[5]->val[0] + result[7]->val[2] + result[8]->val[2] + result[6]->val[1] + result[2]->val[0] != 33)
-    {
-        return false;
-    }
-    if (result[7]->val[3] + result[8]->val[3] + result[6]->val[2] + result[2]->val[1] != 34)
-    {
-        return false;
-    }
-
-    if (result[0]->val[1] + result[8]->val[1] + result[6]->val[1] + result[2]->val[1] != 34)
-    {
-        return false;
-    }
-    if (result[0]->val[0] + result[7]->val[1] + result[8]->val[2] + result[6]->val[2] + result[2]->val[2] != 33)
-    {
-        return false;
-    }
-    if (result[5]->val[1] + result[7]->val[2] + result[8]->val[3] + result[6]->val[3] != 34)
-    {
-        return false;
-    }
-
-    return true;
-}
-
-void print_result(std::vector<vb19 *> result)
-{
-    printf("    %2d  %2d  %2d\n", result[0]->val[0] + 1, result[0]->val[1] + 1, result[0]->val[2] + 1);
-    printf("  %2d  %2d  %2d  %2d\n", result[5]->val[1] + 1, result[7]->val[1] + 1, result[8]->val[1] + 1, result[6]->val[0] + 1);
-    printf("%2d  %2d  %2d  %2d  %2d\n", result[5]->val[0] + 1, result[7]->val[2] + 1, result[8]->val[2] + 1, result[6]->val[1] + 1, result[1]->val[2] + 1);
-    printf("  %2d  %2d  %2d  %2d\n", result[4]->val[1] + 1, result[8]->val[3] + 1, result[6]->val[2] + 1, result[2]->val[1] + 1);
-    printf("    %2d  %2d  %2d\n\n", result[3]->val[2] + 1, result[3]->val[1] + 1, result[3]->val[0] + 1);
-    fflush(stdout);
-}
-
-bool search(std::vector<vb19 *> result, int step, std::vector<vb19 *> search_space)
+bool search(std::vector<vb19 *> result, hexagon *hex, int step, std::vector<vb19 *> search_space)
 {
     if (step == 0)
     {
         for (auto v : search_space)
         {
             result.push_back(v);
-            if (search(result, 1, search_space))
+            hex->set_row(step, v);
+            if (search(result, hex, 1, search_space))
             {
                 return true;
             }
             result.pop_back();
+            hex->erase_row(step);
         }
         return false;
     }
@@ -238,14 +263,14 @@ bool search(std::vector<vb19 *> result, int step, std::vector<vb19 *> search_spa
         }
         for (auto v : filter(&v3, result, f))
         {
-            if (in_list(v, result))
-                continue;
             result.push_back(v);
-            if (search(result, step + 1, search_space))
+            hex->set_row(step, v);
+            if (search(result, hex, step + 1, search_space))
             {
                 return true;
             }
             result.pop_back();
+            hex->erase_row(step);
         }
         return false;
     }
@@ -257,14 +282,14 @@ bool search(std::vector<vb19 *> result, int step, std::vector<vb19 *> search_spa
 
         for (auto v : filter(&v4, result, f))
         {
-            if (in_list(v, result))
-                continue;
             result.push_back(v);
-            if (search(result, 7, search_space))
+            hex->set_row(step, v);
+            if (search(result, hex, 7, search_space))
             {
                 return true;
             }
             result.pop_back();
+            hex->erase_row(step);
         }
         return false;
     }
@@ -275,17 +300,14 @@ bool search(std::vector<vb19 *> result, int step, std::vector<vb19 *> search_spa
         f[3] = result[4]->val[1];
         for (auto v : filter(&v4, result, f))
         {
-            if (in_list(v, result))
-            {
-                continue;
-            }
-
             result.push_back(v);
-            if (search(result, 8, search_space))
+            hex->set_row(step, v);
+            if (search(result, hex, 8, search_space))
             {
                 return true;
             }
             result.pop_back();
+            hex->erase_row(step);
         }
         return false;
     }
@@ -296,17 +318,14 @@ bool search(std::vector<vb19 *> result, int step, std::vector<vb19 *> search_spa
         f[4] = result[3]->val[2];
         for (auto v : filter(&v5, result, f))
         {
-            if (in_list(v, result))
-            {
-                continue;
-            }
-
             result.push_back(v);
-            if (check(result))
+            hex->set_row(step, v);
+            if (hex->check())
             {
-                print_result(result);
+                hex->print();
             }
             result.pop_back();
+            hex->erase_row(step);
         }
     }
 
@@ -316,7 +335,7 @@ bool search(std::vector<vb19 *> result, int step, std::vector<vb19 *> search_spa
 int main()
 {
     vb19 v;
- while (v.size() < 6)
+    while (v.size() < 6)
     {
         v.incc();
 
@@ -334,22 +353,18 @@ int main()
         }
     }
 
-
-
-
-    std::map<int, std::vector<vb19 *>*> v3_map;
+    std::map<int, std::vector<vb19 *> *> v3_map;
     int threads_supported = std::thread::hardware_concurrency();
     if (threads_supported == 0)
     {
         threads_supported = 4;
     }
 
-    for (int i = 0; i < threads_supported; i++) {
-       auto n = new std::vector<vb19 *>();
+    for (int i = 0; i < threads_supported; i++)
+    {
+        auto n = new std::vector<vb19 *>();
         v3_map.insert(make_pair(i, n));
     }
-
-   
 
     for (int i = 0; i < v3.size(); i++)
     {
@@ -362,7 +377,8 @@ int main()
     for (int i = 0; i < v3_map.size(); i++)
     {
         std::vector<vb19 *> result;
-        std::thread *t1 = new std::thread(search, result, 0, *v3_map[i]);
+        hexagon *hex = new hexagon();
+        std::thread *t1 = new std::thread(search, result, hex, 0, *v3_map[i]);
         threads.push_back(t1);
     }
 
