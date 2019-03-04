@@ -61,17 +61,21 @@ class vb19
     }
 };
 
-bool in_list(vb19 search, std::vector<vb19> list)
+std::vector<vb19> v3;
+std::vector<vb19> v4;
+std::vector<vb19> v5;
+
+bool in_list(vb19 *search, std::vector<vb19 *> list)
 {
     return false;
     for (auto v : list)
     {
-        if (v.size() != search.size())
+        if (v->size() != search->size())
             continue;
         bool found = true;
-        for (int i = 0; i < v.size(); i++)
+        for (int i = 0; i < v->size(); i++)
         {
-            if (v.val[i] != search.val[i])
+            if (v->val[i] != search->val[i])
             {
                 found = false;
                 break;
@@ -83,18 +87,14 @@ bool in_list(vb19 search, std::vector<vb19> list)
     return false;
 }
 
-std::vector<vb19> v3;
-std::vector<vb19> v4;
-std::vector<vb19> v5;
-
-std::vector<vb19> filter(std::vector<vb19> *unfiltered_list, std::vector<vb19> b, std::map<int, int> search_map)
+std::vector<vb19 *> filter(std::vector<vb19> *unfiltered_list, std::vector<vb19 *> b, std::map<int, int> search_map)
 {
 
     // calculate set with already used numbers (exclude search_map)
     std::set<int> ignore_set;
     for (auto _b : b)
     {
-        for (auto i : _b.val)
+        for (auto i : _b->val)
         {
             bool ignore = false;
             for (auto it = search_map.begin(); it != search_map.end(); ++it)
@@ -110,7 +110,7 @@ std::vector<vb19> filter(std::vector<vb19> *unfiltered_list, std::vector<vb19> b
         }
     }
 
-    std::vector<vb19> result;
+    std::vector<vb19 *> result;
 
     // filter by ignore_set
     for (auto it = unfiltered_list->begin(); it != unfiltered_list->end(); ++it)
@@ -146,14 +146,14 @@ std::vector<vb19> filter(std::vector<vb19> *unfiltered_list, std::vector<vb19> b
         for (auto v : b)
         {
             found = false;
-            if (v.size() != (*it).size())
+            if (v->size() != (*it).size())
             {
                 continue;
             }
             found = true;
-            for (int i = 0; i < v.size(); i++)
+            for (int i = 0; i < v->size(); i++)
             {
-                if (v.val[i] != (*it).val[i])
+                if (v->val[i] != (*it).val[i])
                 {
                     found = false;
                     break;
@@ -167,35 +167,35 @@ std::vector<vb19> filter(std::vector<vb19> *unfiltered_list, std::vector<vb19> b
             continue;
         }
 
-        result.push_back(*it);
+        result.push_back(&(*it));
     }
     return result;
 }
 
-bool check(std::vector<vb19> result)
+bool check(std::vector<vb19 *> result)
 {
-    if (result[5].val[1] + result[7].val[1] + result[8].val[1] + result[6].val[0] != 34)
+    if (result[5]->val[1] + result[7]->val[1] + result[8]->val[1] + result[6]->val[0] != 34)
     {
         return false;
     }
-    if (result[5].val[0] + result[7].val[2] + result[8].val[2] + result[6].val[1] + result[2].val[0] != 33)
+    if (result[5]->val[0] + result[7]->val[2] + result[8]->val[2] + result[6]->val[1] + result[2]->val[0] != 33)
     {
         return false;
     }
-    if (result[7].val[3] + result[8].val[3] + result[6].val[2] + result[2].val[1] != 34)
+    if (result[7]->val[3] + result[8]->val[3] + result[6]->val[2] + result[2]->val[1] != 34)
     {
         return false;
     }
 
-    if (result[0].val[1] + result[8].val[1] + result[6].val[1] + result[2].val[1] != 34)
+    if (result[0]->val[1] + result[8]->val[1] + result[6]->val[1] + result[2]->val[1] != 34)
     {
         return false;
     }
-    if (result[0].val[0] + result[7].val[1] + result[8].val[2] + result[6].val[2] + result[2].val[2] != 33)
+    if (result[0]->val[0] + result[7]->val[1] + result[8]->val[2] + result[6]->val[2] + result[2]->val[2] != 33)
     {
         return false;
     }
-    if (result[5].val[1] + result[7].val[2] + result[8].val[3] + result[6].val[3] != 34)
+    if (result[5]->val[1] + result[7]->val[2] + result[8]->val[3] + result[6]->val[3] != 34)
     {
         return false;
     }
@@ -203,21 +203,21 @@ bool check(std::vector<vb19> result)
     return true;
 }
 
-void print_result(std::vector<vb19> result)
+void print_result(std::vector<vb19 *> result)
 {
-    printf("    %2d  %2d  %2d\n", result[0].val[0] + 1, result[0].val[1] + 1, result[0].val[2] + 1);
-    printf("  %2d  %2d  %2d  %2d\n", result[5].val[1] + 1, result[7].val[1] + 1, result[8].val[1] + 1, result[6].val[0] + 1);
-    printf("%2d  %2d  %2d  %2d  %2d\n", result[5].val[0] + 1, result[7].val[2] + 1, result[8].val[2] + 1, result[6].val[1] + 1, result[1].val[2] + 1);
-    printf("  %2d  %2d  %2d  %2d\n", result[4].val[1] + 1, result[8].val[3] + 1, result[6].val[2] + 1, result[2].val[1] + 1);
-    printf("    %2d  %2d  %2d\n\n", result[3].val[2] + 1, result[3].val[1] + 1, result[3].val[0] + 1);
+    printf("    %2d  %2d  %2d\n", result[0]->val[0] + 1, result[0]->val[1] + 1, result[0]->val[2] + 1);
+    printf("  %2d  %2d  %2d  %2d\n", result[5]->val[1] + 1, result[7]->val[1] + 1, result[8]->val[1] + 1, result[6]->val[0] + 1);
+    printf("%2d  %2d  %2d  %2d  %2d\n", result[5]->val[0] + 1, result[7]->val[2] + 1, result[8]->val[2] + 1, result[6]->val[1] + 1, result[1]->val[2] + 1);
+    printf("  %2d  %2d  %2d  %2d\n", result[4]->val[1] + 1, result[8]->val[3] + 1, result[6]->val[2] + 1, result[2]->val[1] + 1);
+    printf("    %2d  %2d  %2d\n\n", result[3]->val[2] + 1, result[3]->val[1] + 1, result[3]->val[0] + 1);
     fflush(stdout);
 }
 
-bool search(std::vector<vb19> result, int step, std::vector<vb19> *search_space)
+bool search(std::vector<vb19 *> result, int step, std::vector<vb19 *> search_space)
 {
     if (step == 0)
     {
-        for (auto v : (*search_space))
+        for (auto v : search_space)
         {
             result.push_back(v);
             if (search(result, 1, search_space))
@@ -231,10 +231,10 @@ bool search(std::vector<vb19> result, int step, std::vector<vb19> *search_space)
     else if (step <= 5)
     {
         std::map<int, int> f;
-        f[0] = result[step - 1].val[2];
+        f[0] = result[step - 1]->val[2];
         if (step == 5)
         {
-            f[2] = result[0].val[0];
+            f[2] = result[0]->val[0];
         }
         for (auto v : filter(&v3, result, f))
         {
@@ -252,8 +252,8 @@ bool search(std::vector<vb19> result, int step, std::vector<vb19> *search_space)
     else if (step == 6)
     {
         std::map<int, int> f;
-        f[0] = result[1].val[1];
-        f[3] = result[3].val[1];
+        f[0] = result[1]->val[1];
+        f[3] = result[3]->val[1];
 
         for (auto v : filter(&v4, result, f))
         {
@@ -271,8 +271,8 @@ bool search(std::vector<vb19> result, int step, std::vector<vb19> *search_space)
     else if (step == 7)
     {
         std::map<int, int> f;
-        f[0] = result[0].val[1];
-        f[3] = result[4].val[1];
+        f[0] = result[0]->val[1];
+        f[3] = result[4]->val[1];
         for (auto v : filter(&v4, result, f))
         {
             if (in_list(v, result))
@@ -292,8 +292,8 @@ bool search(std::vector<vb19> result, int step, std::vector<vb19> *search_space)
     else if (step == 8)
     {
         std::map<int, int> f;
-        f[0] = result[0].val[2];
-        f[4] = result[3].val[2];
+        f[0] = result[0]->val[2];
+        f[4] = result[3]->val[2];
         for (auto v : filter(&v5, result, f))
         {
             if (in_list(v, result))
@@ -316,36 +316,13 @@ bool search(std::vector<vb19> result, int step, std::vector<vb19> *search_space)
 int main()
 {
     vb19 v;
-    std::map<int, std::vector<vb19> *> v3_map;
-    std::vector<vb19> *v_3;
-    int i = 0;
-    int threads_supported = std::thread::hardware_concurrency();
-    if (threads_supported == 0)
+ while (v.size() < 6)
     {
-        threads_supported = 4;
-    }
-    while (v.size() < 6)
-    {
-       v.incc();
+        v.incc();
 
         if (v.size() == 3 && v.sum() == 35)
         {
             v3.push_back(v);
-            i++;
-
-            auto key = i % threads_supported;
-            if (v3_map.find(key) == v3_map.end())
-            {
-                // insert new
-                v_3 = new std::vector<vb19>();
-                v3_map[key] = v_3;
-            }
-            else
-            {
-                v_3 = v3_map[key];
-                // found
-            }
-            v_3->push_back(v);
         }
         else if (v.size() == 4 && v.sum() == 34)
         {
@@ -357,11 +334,35 @@ int main()
         }
     }
 
+
+
+
+    std::map<int, std::vector<vb19 *>*> v3_map;
+    int threads_supported = std::thread::hardware_concurrency();
+    if (threads_supported == 0)
+    {
+        threads_supported = 4;
+    }
+
+    for (int i = 0; i < threads_supported; i++) {
+       auto n = new std::vector<vb19 *>();
+        v3_map.insert(make_pair(i, n));
+    }
+
+   
+
+    for (int i = 0; i < v3.size(); i++)
+    {
+        auto key = i % threads_supported;
+        auto v_3 = v3_map[key];
+        v_3->push_back(&v3[i]);
+    }
+
     std::vector<std::thread *> threads;
     for (int i = 0; i < v3_map.size(); i++)
     {
-        std::vector<vb19> result;
-        std::thread *t1 = new std::thread(search, result, 0, v3_map[i]);
+        std::vector<vb19 *> result;
+        std::thread *t1 = new std::thread(search, result, 0, *v3_map[i]);
         threads.push_back(t1);
     }
 
