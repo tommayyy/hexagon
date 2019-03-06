@@ -15,6 +15,9 @@ class vb19
   public:
     vb19() : val(3, 0) {}
     vb19(std::vector<int> v) : val(v) {}
+    vb19(vb19* v) {
+        this->val = v->val;
+    }
     std::vector<int> val;
     int base = 19;
 
@@ -64,9 +67,9 @@ class vb19
     }
 };
 
-std::vector<vb19> v3;
-std::vector<vb19> v4;
-std::vector<vb19> v5;
+std::vector<vb19*> v3;
+std::vector<vb19*> v4;
+std::vector<vb19*> v5;
 
 class hexagon
 {
@@ -227,7 +230,7 @@ class hexagon
         return false;
     }
 
-    std::vector<vb19 *> filter(std::vector<vb19> *unfiltered_list, std::map<int, int> search_map)
+    std::vector<vb19 *> filter(std::vector<vb19*> * unfiltered_list, std::map<int, int> search_map)
     {
         // calculate set with already used numbers (exclude search_map)
         std::set<int> ignore_set;
@@ -251,7 +254,7 @@ class hexagon
         for (auto it = unfiltered_list->begin(); it != unfiltered_list->end(); ++it)
         {
             bool found = false;
-            for (auto i : (*it).val)
+            for (auto i : (*it)->val)
             {
                 if (ignore_set.find(i) != ignore_set.end())
                 {
@@ -267,7 +270,7 @@ class hexagon
             found = true;
             for (auto m : search_map)
             {
-                if ((*it).val[m.first] != m.second)
+                if ((*it)->val[m.first] != m.second)
                 {
                     found = false;
                     break;
@@ -282,14 +285,14 @@ class hexagon
             {
                 auto v = itt.second;
                 found = false;
-                if (v->size() != (*it).size())
+                if (v->size() != (*it)->size())
                 {
                     continue;
                 }
                 found = true;
                 for (int i = 0; i < v->size(); i++)
                 {
-                    if (v->val[i] != (*it).val[i])
+                    if (v->val[i] != (*it)->val[i])
                     {
                         found = false;
                         break;
@@ -303,7 +306,7 @@ class hexagon
                 continue;
             }
 
-            result.push_back(&(*it));
+            result.push_back((*it));
         }
         return result;
     }
@@ -354,23 +357,26 @@ bool search(hexagon *hex, int step, std::vector<vb19 *> search_space)
 
 int main()
 {
-    vb19 v;
-    while (v.size() < 6)
+    vb19 *v = new vb19();
+    while (v->size() < 6)
     {
-        v.incc();
-        if (!v.is_complete())
+        v->incc();
+        if (!v->is_complete())
             continue;
-        if (v.size() == 3)
+        if (v->size() == 3)
         {
             v3.push_back(v);
+            v = new vb19(v);
         }
-        else if (v.size() == 4)
+        else if (v->size() == 4)
         {
             v4.push_back(v);
+            v = new vb19(v);
         }
-        else if (v.size() == 5)
+        else if (v->size() == 5)
         {
             v5.push_back(v);
+            v = new vb19(v);
         }
     }
 
@@ -391,7 +397,7 @@ int main()
     {
         auto key = i % threads_supported;
         auto v_3 = v3_map[key];
-        v_3->push_back(&v3[i]);
+        v_3->push_back(v3[i]);
     }
 
     std::vector<std::thread *> threads;
