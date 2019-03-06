@@ -100,6 +100,7 @@ class hexagon
 {
   public:
     std::map<int, vb19 *> rows;
+    std::vector<int> used_digits;
 
     void set_row(int index, vb19 *value)
     {
@@ -112,6 +113,11 @@ class hexagon
         else
         {
             this->rows.insert(std::make_pair(index, value));
+        }
+
+        for (auto i : value->val)
+        {
+            this->used_digits.push_back(i);
         }
     }
 
@@ -130,6 +136,13 @@ class hexagon
         std::map<int, vb19 *>::iterator it = this->rows.find(index);
         if (it != this->rows.end())
         {
+            for (auto i : it->second->val)
+            {
+                auto it = std::find(this->used_digits.begin(), this->used_digits.end(), i);
+                if (it == this->used_digits.end())
+                    continue;
+                this->used_digits.erase(it);
+            }
             this->rows.erase(it);
         }
     }
@@ -228,21 +241,6 @@ class hexagon
         }
     }
 
-    std::vector<int> get_used_digits()
-    {
-        std::vector<int> result;
-        for (auto row : this->rows)
-        {
-            for (auto digit : row.second->val)
-            {
-                if (std::find(result.begin(), result.end(), digit) != result.end())
-                    continue;
-                result.push_back(digit);
-            }
-        }
-        return result;
-    }
-
     bool search_map_contains(std::map<int, int> *search_map, int i)
     {
         for (auto it : *search_map)
@@ -259,7 +257,7 @@ class hexagon
     {
         // calculate set with already used numbers (exclude search_map)
         std::set<int> ignore_set;
-        for (auto i : this->get_used_digits())
+        for (auto i : this->used_digits)
         {
             if ((ignore_set.find(i) != ignore_set.end()))
             {
@@ -278,39 +276,12 @@ class hexagon
         // filter by ignore_set
         for (auto it : *unfiltered_list)
         {
-            bool found = true;
-          
             if (!it->found(search_map))
             {
                 continue;
             }
 
             if (it->contains(&ignore_set))
-            {
-                continue;
-            }
-
-            for (auto itt : this->rows)
-            {
-                auto v = itt.second;
-                found = false;
-                if (v->size() != it->size())
-                {
-                    continue;
-                }
-                found = true;
-                for (int i = 0; i < v->size(); i++)
-                {
-                    if (v->val[i] != it->val[i])
-                    {
-                        found = false;
-                        break;
-                    }
-                }
-                if (found)
-                    break;
-            }
-            if (found)
             {
                 continue;
             }
