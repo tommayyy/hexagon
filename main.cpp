@@ -15,7 +15,8 @@ class vb19
   public:
     vb19() : val(3, 0) {}
     vb19(std::vector<int> v) : val(v) {}
-    vb19(vb19* v) {
+    vb19(vb19 *v)
+    {
         this->val = v->val;
     }
     std::vector<int> val;
@@ -65,11 +66,35 @@ class vb19
     {
         return this->val[index] + 1;
     }
+
+    bool contains(std::set<int> *s)
+    {
+        for (auto i : this->val)
+        {
+            if (s->find(i) != s->end())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool found(std::map<int, int> *search_map)
+    {
+        for (auto m : *search_map)
+        {
+            if (this->val[m.first] != m.second)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 };
 
-std::vector<vb19*> v3;
-std::vector<vb19*> v4;
-std::vector<vb19*> v5;
+std::vector<vb19 *> v3;
+std::vector<vb19 *> v4;
+std::vector<vb19 *> v5;
 
 class hexagon
 {
@@ -178,28 +203,28 @@ class hexagon
             {
                 f[2] = this->digit_at(0, 0) - 1;
             }
-            return filter(&v3, f);
+            return filter(&v3, &f);
         }
         if (step == 6)
         {
             std::map<int, int> f;
             f[0] = this->digit_at(1, 1) - 1;
             f[3] = this->digit_at(3, 1) - 1;
-            return filter(&v4, f);
+            return filter(&v4, &f);
         }
         if (step == 7)
         {
             std::map<int, int> f;
             f[0] = this->digit_at(0, 1) - 1;
             f[3] = this->digit_at(4, 1) - 1;
-            return filter(&v4, f);
+            return filter(&v4, &f);
         }
         if (step == 8)
         {
             std::map<int, int> f;
             f[0] = this->digit_at(0, 2) - 1;
             f[4] = this->digit_at(3, 2) - 1;
-            return filter(&v5, f);
+            return filter(&v5, &f);
         }
     }
 
@@ -218,9 +243,9 @@ class hexagon
         return result;
     }
 
-    bool search_map_contains(std::map<int, int> search_map, int i)
+    bool search_map_contains(std::map<int, int> *search_map, int i)
     {
-        for (auto it : search_map)
+        for (auto it : *search_map)
         {
             if (it.second == i)
             {
@@ -230,7 +255,7 @@ class hexagon
         return false;
     }
 
-    std::vector<vb19 *> filter(std::vector<vb19*> * unfiltered_list, std::map<int, int> search_map)
+    std::vector<vb19 *> filter(std::vector<vb19 *> *unfiltered_list, std::map<int, int> *search_map)
     {
         // calculate set with already used numbers (exclude search_map)
         std::set<int> ignore_set;
@@ -251,32 +276,16 @@ class hexagon
         std::vector<vb19 *> result;
 
         // filter by ignore_set
-        for (auto it = unfiltered_list->begin(); it != unfiltered_list->end(); ++it)
+        for (auto it : *unfiltered_list)
         {
-            bool found = false;
-            for (auto i : (*it)->val)
-            {
-                if (ignore_set.find(i) != ignore_set.end())
-                {
-                    found = true;
-                    break;
-                }
-            }
-            if (found)
+            bool found = true;
+          
+            if (!it->found(search_map))
             {
                 continue;
             }
 
-            found = true;
-            for (auto m : search_map)
-            {
-                if ((*it)->val[m.first] != m.second)
-                {
-                    found = false;
-                    break;
-                }
-            }
-            if (!found)
+            if (it->contains(&ignore_set))
             {
                 continue;
             }
@@ -285,14 +294,14 @@ class hexagon
             {
                 auto v = itt.second;
                 found = false;
-                if (v->size() != (*it)->size())
+                if (v->size() != it->size())
                 {
                     continue;
                 }
                 found = true;
                 for (int i = 0; i < v->size(); i++)
                 {
-                    if (v->val[i] != (*it)->val[i])
+                    if (v->val[i] != it->val[i])
                     {
                         found = false;
                         break;
@@ -306,7 +315,7 @@ class hexagon
                 continue;
             }
 
-            result.push_back((*it));
+            result.push_back(it);
         }
         return result;
     }
