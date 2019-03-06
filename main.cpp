@@ -4,6 +4,7 @@
 #include <set>
 #include <map>
 #include <thread>
+#include <algorithm>
 
 using std::cout;
 using std::endl;
@@ -150,7 +151,7 @@ class hexagon
         return true;
     }
 
-    std::vector<vb19 *> get_filterd_list(int step)
+    std::vector<vb19 *> get_filtered_list(int step)
     {
         if (step == 0)
         {
@@ -164,120 +165,130 @@ class hexagon
             {
                 f[2] = this->get_row(0)->get_digit(0) - 1;
             }
-            return filter(&v3, result, f);
+            return filter(&v3, f);
         }
         if (step == 6)
         {
             std::map<int, int> f;
-            f[0] = result[1]->val[1];
-            f[3] = result[3]->val[1];
-
-            return filter(&v4, result, f);
+            f[0] = this->get_row(1)->get_digit(1) - 1;
+            f[3] = this->get_row(3)->get_digit(1) - 1;
+            return filter(&v4, f);
         }
         if (step == 7)
         {
             std::map<int, int> f;
-            f[0] = result[0]->val[1];
-            f[3] = result[4]->val[1];
-
-            return filter(&v4, result, f);
+            f[0] = this->get_row(0)->get_digit(1) - 1;
+            f[3] = this->get_row(4)->get_digit(1) - 1;
+            return filter(&v4, f);
         }
         if (step == 8)
         {
             std::map<int, int> f;
-            f[0] = result[0]->val[2];
-            f[4] = result[3]->val[2];
-            return filter(&v5, result, f);
+            f[0] = this->get_row(0)->get_digit(2) - 1;
+            f[4] = this->get_row(3)->get_digit(2) - 1;
+            return filter(&v5, f);
         }
     }
-};
 
-std::vector<vb19 *> filter(std::vector<vb19> *unfiltered_list, hexagon *hex, std::map<int, int> search_map)
-{
-    // calculate set with already used numbers (exclude search_map)
-    std::set<int> ignore_set;
-    // for (auto _b : b)
-    // {
-    //     for (auto i : _b->val)
-    //     {
-    for (auto i : hex->get_used_values())
+    std::vector<int> get_used_digits()
     {
-        bool ignore = false;
-        for (auto it = search_map.begin(); it != search_map.end(); ++it)
+        std::vector<int> result;
+        for (auto row : this->rows)
         {
-            if (it->second == i)
+            for (auto digit : row.second->val)
             {
-                ignore = true;
-                break;
+                if (std::find(result.begin(), result.end(), digit) != result.end())
+                    continue;
+                result.push_back(digit);
             }
         }
-        if (!ignore && (ignore_set.find(i) == ignore_set.end()))
-            ignore_set.insert(i);
+        return result;
     }
-    //     }
-    // }
 
-    std::vector<vb19 *> result;
-
-    // filter by ignore_set
-    for (auto it = unfiltered_list->begin(); it != unfiltered_list->end(); ++it)
+    std::vector<vb19 *> filter(std::vector<vb19> *unfiltered_list, std::map<int, int> search_map)
     {
-        bool found = false;
-        for (auto i : (*it).val)
+        // calculate set with already used numbers (exclude search_map)
+        std::set<int> ignore_set;
+        for (auto i : this->get_used_digits())
         {
-            if (ignore_set.find(i) != ignore_set.end())
+            bool ignore = false;
+            for (auto it = search_map.begin(); it != search_map.end(); ++it)
             {
-                found = true;
-                break;
+                if (it->second == i)
+                {
+                    ignore = true;
+                    break;
+                }
+            }
+            if (!ignore && (ignore_set.find(i) == ignore_set.end()))
+            {
+                ignore_set.insert(i);
             }
         }
-        if (found)
-        {
-            continue;
-        }
 
-        found = true;
-        for (auto m : search_map)
+        std::vector<vb19 *> result;
+
+        // filter by ignore_set
+        for (auto it = unfiltered_list->begin(); it != unfiltered_list->end(); ++it)
         {
-            if ((*it).val[m.first] != m.second)
+            bool found = false;
+            for (auto i : (*it).val)
             {
-                found = false;
-                break;
+                if (ignore_set.find(i) != ignore_set.end())
+                {
+                    found = true;
+                    break;
+                }
             }
-        }
-        if (!found)
-        {
-            continue;
-        }
-
-        for (auto v : b)
-        {
-            found = false;
-            if (v->size() != (*it).size())
+            if (found)
             {
                 continue;
             }
+
             found = true;
-            for (int i = 0; i < v->size(); i++)
+            for (auto m : search_map)
             {
-                if (v->val[i] != (*it).val[i])
+                if ((*it).val[m.first] != m.second)
                 {
                     found = false;
                     break;
                 }
             }
-            if (found)
-                break;
-        }
-        if (found)
-        {
-            continue;
-        }
+            if (!found)
+            {
+                continue;
+            }
 
-        result.push_back(&(*it));
+            for (auto itt : this->rows)
+            {
+                auto v = itt.second;
+                found = false;
+                if (v->size() != (*it).size())
+                {
+                    continue;
+                }
+                found = true;
+                for (int i = 0; i < v->size(); i++)
+                {
+                    if (v->val[i] != (*it).val[i])
+                    {
+                        found = false;
+                        break;
+                    }
+                }
+                if (found)
+                    break;
+            }
+            if (found)
+            {
+                continue;
+            }
+
+            result.push_back(&(*it));
+        }
+        return result;
     }
-    return result;
-}
+};
 
 bool search(std::vector<vb19 *>, hexagon *, int, std::vector<vb19 *>);
 
@@ -329,7 +340,7 @@ bool search(std::vector<vb19 *> result, hexagon *hex, int step, std::vector<vb19
         f[0] = result[1]->val[1];
         f[3] = result[3]->val[1];
 
-        return inner_search(result, hex, step, search_space, filter(&v4, result, f), search);
+        return inner_search(result, hex, step, search_space, hex->get_filtered_list(step), search);
     }
     else if (step == 7)
     {
@@ -337,14 +348,14 @@ bool search(std::vector<vb19 *> result, hexagon *hex, int step, std::vector<vb19
         f[0] = result[0]->val[1];
         f[3] = result[4]->val[1];
 
-        return inner_search(result, hex, step, search_space, filter(&v4, result, f), search);
+        return inner_search(result, hex, step, search_space, hex->get_filtered_list(step), search);
     }
     else if (step == 8)
     {
         std::map<int, int> f;
         f[0] = result[0]->val[2];
         f[4] = result[3]->val[2];
-        return inner_search(result, hex, step, search_space, filter(&v5, result, f), search2);
+        return inner_search(result, hex, step, search_space, hex->get_filtered_list(step), search2);
     }
 
     return false;
