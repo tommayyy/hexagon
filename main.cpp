@@ -5,6 +5,7 @@
 #include <map>
 #include <thread>
 #include <algorithm>
+#include <numeric>
 
 using std::cout;
 using std::endl;
@@ -47,14 +48,9 @@ class vb19
         } while (!this->is_unique());
     }
 
-    int sum()
+    bool is_complete()
     {
-        int result = 0;
-        for (auto it = this->val.begin(); it != this->val.end(); ++it)
-        {
-            result += *it;
-        }
-        return result;
+        return std::accumulate(this->val.begin(), this->val.end(), 0) == (38 - this->val.size());
     }
 
     int size()
@@ -112,38 +108,52 @@ class hexagon
 
     void print()
     {
-        printf("    %2d  %2d  %2d\n", this->get_row(0)->get_digit(0), this->get_row(0)->get_digit(1), this->get_row(0)->get_digit(2));
-        printf("  %2d  %2d  %2d  %2d\n", this->get_row(5)->get_digit(1), this->get_row(7)->get_digit(1), this->get_row(8)->get_digit(1), this->get_row(6)->get_digit(0));
-        printf("%2d  %2d  %2d  %2d  %2d\n", this->get_row(5)->get_digit(0), this->get_row(7)->get_digit(2), this->get_row(8)->get_digit(2), this->get_row(6)->get_digit(1), this->get_row(1)->get_digit(2));
-        printf("  %2d  %2d  %2d  %2d\n", this->get_row(4)->get_digit(1), this->get_row(8)->get_digit(3), this->get_row(6)->get_digit(2), this->get_row(2)->get_digit(1));
-        printf("    %2d  %2d  %2d\n\n", this->get_row(3)->get_digit(2), this->get_row(3)->get_digit(1), this->get_row(3)->get_digit(0));
+        printf("    %2d  %2d  %2d\n", this->digit_at(0, 0), this->digit_at(0, 1), this->digit_at(0, 2));
+        printf("  %2d  %2d  %2d  %2d\n", this->digit_at(5, 1), this->digit_at(7, 1), this->digit_at(8, 1), this->digit_at(6, 0));
+        printf("%2d  %2d  %2d  %2d  %2d\n", this->digit_at(5, 0), this->digit_at(7, 2), this->digit_at(8, 2), this->digit_at(6, 1), this->digit_at(1, 2));
+        printf("  %2d  %2d  %2d  %2d\n", this->digit_at(4, 1), this->digit_at(8, 3), this->digit_at(6, 2), this->digit_at(2, 1));
+        printf("    %2d  %2d  %2d\n\n", this->digit_at(3, 2), this->digit_at(3, 1), this->digit_at(3, 0));
         fflush(stdout);
+    }
+
+    int digit_at(int row, int index)
+    {
+        return this->get_row(row)->get_digit(index);
+    }
+
+    bool _check(std::vector<std::pair<int, int>> digits)
+    {
+        int sum = 0;
+        for (auto p : digits)
+        {
+            sum += this->digit_at(p.first, p.second);
+        }
+        return sum == 38;
     }
 
     bool check()
     {
-        if (this->get_row(5)->get_digit(1) + this->get_row(7)->get_digit(1) + this->get_row(8)->get_digit(1) + this->get_row(6)->get_digit(0) != 38)
+        if (!this->_check({{5, 1}, {7, 1}, {8, 1}, {6, 0}}))
         {
             return false;
         }
-        if (this->get_row(5)->get_digit(0) + this->get_row(7)->get_digit(2) + this->get_row(8)->get_digit(2) + this->get_row(6)->get_digit(1) + this->get_row(2)->get_digit(0) != 38)
+        if (!this->_check({{5, 0}, {7, 2}, {8, 2}, {6, 1}, {2, 0}}))
         {
             return false;
         }
-        if (this->get_row(7)->get_digit(3) + this->get_row(8)->get_digit(3) + this->get_row(6)->get_digit(2) + this->get_row(2)->get_digit(1) != 38)
+        if (!this->_check({{7, 3}, {8, 3}, {6, 2}, {2, 1}}))
         {
             return false;
         }
-
-        if (this->get_row(0)->get_digit(1) + this->get_row(8)->get_digit(1) + this->get_row(6)->get_digit(1) + this->get_row(2)->get_digit(1) != 38)
+        if (!this->_check({{0, 1}, {8, 1}, {6, 1}, {2, 1}}))
         {
             return false;
         }
-        if (this->get_row(0)->get_digit(0) + this->get_row(7)->get_digit(1) + this->get_row(8)->get_digit(2) + this->get_row(6)->get_digit(2) + this->get_row(2)->get_digit(2) != 38)
+        if (!this->_check({{0, 0}, {7, 1}, {8, 2}, {6, 2}, {2, 2}}))
         {
             return false;
         }
-        if (this->get_row(5)->get_digit(1) + this->get_row(7)->get_digit(2) + this->get_row(8)->get_digit(3) + this->get_row(6)->get_digit(3) != 38)
+        if (!this->_check({{5, 1}, {7, 2}, {8, 3}, {6, 3}}))
         {
             return false;
         }
@@ -163,29 +173,29 @@ class hexagon
             f[0] = this->get_row(step - 1)->get_digit(2) - 1;
             if (step == 5)
             {
-                f[2] = this->get_row(0)->get_digit(0) - 1;
+                f[2] = this->digit_at(0, 0) - 1;
             }
             return filter(&v3, f);
         }
         if (step == 6)
         {
             std::map<int, int> f;
-            f[0] = this->get_row(1)->get_digit(1) - 1;
-            f[3] = this->get_row(3)->get_digit(1) - 1;
+            f[0] = this->digit_at(1, 1) - 1;
+            f[3] = this->digit_at(3, 1) - 1;
             return filter(&v4, f);
         }
         if (step == 7)
         {
             std::map<int, int> f;
-            f[0] = this->get_row(0)->get_digit(1) - 1;
-            f[3] = this->get_row(4)->get_digit(1) - 1;
+            f[0] = this->digit_at(0, 1) - 1;
+            f[3] = this->digit_at(4, 1) - 1;
             return filter(&v4, f);
         }
         if (step == 8)
         {
             std::map<int, int> f;
-            f[0] = this->get_row(0)->get_digit(2) - 1;
-            f[4] = this->get_row(3)->get_digit(2) - 1;
+            f[0] = this->digit_at(0, 2) - 1;
+            f[4] = this->digit_at(3, 2) - 1;
             return filter(&v5, f);
         }
     }
@@ -205,25 +215,34 @@ class hexagon
         return result;
     }
 
+    bool search_map_contains(std::map<int, int> search_map, int i)
+    {
+        for (auto it : search_map)
+        {
+            if (it.second == i)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     std::vector<vb19 *> filter(std::vector<vb19> *unfiltered_list, std::map<int, int> search_map)
     {
         // calculate set with already used numbers (exclude search_map)
         std::set<int> ignore_set;
         for (auto i : this->get_used_digits())
         {
-            bool ignore = false;
-            for (auto it = search_map.begin(); it != search_map.end(); ++it)
+            if ((ignore_set.find(i) != ignore_set.end()))
             {
-                if (it->second == i)
-                {
-                    ignore = true;
-                    break;
-                }
+                continue;
             }
-            if (!ignore && (ignore_set.find(i) == ignore_set.end()))
+            if (this->search_map_contains(search_map, i))
             {
-                ignore_set.insert(i);
+                continue;
             }
+
+            ignore_set.insert(i);
         }
 
         std::vector<vb19 *> result;
@@ -290,25 +309,23 @@ class hexagon
     }
 };
 
-bool search(std::vector<vb19 *>, hexagon *, int, std::vector<vb19 *>);
+bool search(hexagon *, int, std::vector<vb19 *>);
 
-bool inner_search(std::vector<vb19 *> result, hexagon *hex, int step, std::vector<vb19 *> search_space, std::vector<vb19 *> values, std::function<bool(std::vector<vb19 *>, hexagon *, int, std::vector<vb19 *>)> func)
+bool inner_search(hexagon *hex, int step, std::vector<vb19 *> search_space, std::vector<vb19 *> values, std::function<bool(hexagon *, int, std::vector<vb19 *>)> func)
 {
     for (auto v : values)
     {
-        result.push_back(v);
         hex->set_row(step, v);
-        if (func(result, hex, step + 1, search_space))
+        if (func(hex, step + 1, search_space))
         {
             return true;
         }
-        result.pop_back();
         hex->erase_row(step);
     }
     return false;
 }
 
-bool search2(std::vector<vb19 *> result, hexagon *hex, int step, std::vector<vb19 *> search_space)
+bool search2(hexagon *hex, int step, std::vector<vb19 *> search_space)
 {
     if (hex->check())
     {
@@ -317,45 +334,19 @@ bool search2(std::vector<vb19 *> result, hexagon *hex, int step, std::vector<vb1
     return false;
 }
 
-bool search(std::vector<vb19 *> result, hexagon *hex, int step, std::vector<vb19 *> search_space)
+bool search(hexagon *hex, int step, std::vector<vb19 *> search_space)
 {
     if (step == 0)
     {
-        return inner_search(result, hex, step, search_space, search_space, search);
+        return inner_search(hex, step, search_space, search_space, search);
     }
-    else if (step <= 5)
+    else if (step > 0 && step < 8)
     {
-        std::map<int, int> f;
-        f[0] = result[step - 1]->val[2];
-        if (step == 5)
-        {
-            f[2] = result[0]->val[0];
-        }
-
-        return inner_search(result, hex, step, search_space, hex->get_filtered_list(step), search);
-    }
-    else if (step == 6)
-    {
-        std::map<int, int> f;
-        f[0] = result[1]->val[1];
-        f[3] = result[3]->val[1];
-
-        return inner_search(result, hex, step, search_space, hex->get_filtered_list(step), search);
-    }
-    else if (step == 7)
-    {
-        std::map<int, int> f;
-        f[0] = result[0]->val[1];
-        f[3] = result[4]->val[1];
-
-        return inner_search(result, hex, step, search_space, hex->get_filtered_list(step), search);
+        return inner_search(hex, step, search_space, hex->get_filtered_list(step), search);
     }
     else if (step == 8)
     {
-        std::map<int, int> f;
-        f[0] = result[0]->val[2];
-        f[4] = result[3]->val[2];
-        return inner_search(result, hex, step, search_space, hex->get_filtered_list(step), search2);
+        return inner_search(hex, step, search_space, hex->get_filtered_list(step), search2);
     }
 
     return false;
@@ -367,16 +358,17 @@ int main()
     while (v.size() < 6)
     {
         v.incc();
-
-        if (v.size() == 3 && v.sum() == 35)
+        if (!v.is_complete())
+            continue;
+        if (v.size() == 3)
         {
             v3.push_back(v);
         }
-        else if (v.size() == 4 && v.sum() == 34)
+        else if (v.size() == 4)
         {
             v4.push_back(v);
         }
-        else if (v.size() == 5 && v.sum() == 33)
+        else if (v.size() == 5)
         {
             v5.push_back(v);
         }
@@ -405,9 +397,8 @@ int main()
     std::vector<std::thread *> threads;
     for (int i = 0; i < v3_map.size(); i++)
     {
-        std::vector<vb19 *> result;
         hexagon *hex = new hexagon();
-        std::thread *t1 = new std::thread(search, result, hex, 0, *v3_map[i]);
+        std::thread *t1 = new std::thread(search, hex, 0, *v3_map[i]);
         threads.push_back(t1);
     }
 
