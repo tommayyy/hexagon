@@ -255,20 +255,13 @@ class hexagon
 
     std::vector<vb19 *> filter(std::vector<vb19 *> *unfiltered_list, std::map<int, int> *search_map)
     {
-        // calculate set with already used numbers (exclude search_map)
-        std::set<int> ignore_set;
-        for (auto i : this->used_digits)
-        {
-            if ((ignore_set.find(i) != ignore_set.end()))
-            {
-                continue;
+        // calculate ignore_set with already used digits whitout search_map
+        std::set<int> ignore_set(this->used_digits.begin(), this->used_digits.end());
+        for (auto it : *search_map) {
+            auto a = ignore_set.find(it.second);
+            if (a != ignore_set.end()) {
+                ignore_set.erase(a);
             }
-            if (this->search_map_contains(search_map, i))
-            {
-                continue;
-            }
-
-            ignore_set.insert(i);
         }
 
         std::vector<vb19 *> result;
